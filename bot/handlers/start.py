@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from bot.models import Presentations, User  # Импорт вашей модели в Django
 from io import BytesIO
 import pdfkit  # Для конвертации PPTX в PDF
+import nelsie
 
 from bot import bot
 from bot.static.qna import QUESTIONS
@@ -27,141 +28,172 @@ photo_inside=""
 photo_outside=""
 additives=""
 """
+
+
 def start_message(message):
     user = User.objects.update_or_create(
-        user_id = message.from_user.id,
-        defaults={"user_id":message.from_user.id,"username":message.from_user.username}
+        user_id=message.from_user.id,
+        defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.", reply_markup=START_BUTTONS)
-    
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.",
+                     reply_markup=START_BUTTONS)
+
+
+def create_presentation(object):
+    print(object.adress, object.height)
+    slides = nelsie.SlideDeck()
+    for x in range(5):
+        slide = slides.new_slide(bg_color="white")
+        slide.text(object.adress)
+    slides.render("slides.pdf")
+    object.presentation = slides.render("slides.pdf")
+    object.save()
+
 
 def ask_question(call):
     pres = Presentations.objects.create(user=User.objects.get(user_id=call.message.chat.id))
     pres.save()
-    get_adress(call.message.chat.id)
-    def get_adress(id):
-        msg=bot.send_message(
-            text="Отправьте адрес помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_adress)
-    def register_adress(message):
-        pres.adress=message.text
-        pres.save()
-        return get_square(message.chat.id)
-    def get_square(id):
-        msg=bot.send_message(
-            text="Отправьте площадь помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_square)
-    def register_square(message):
-        pres.square=message.text
-        pres.save()
-        return get_power(message.chat.id)
-    def get_power(id):
-        msg=bot.send_message(
-            text="Отправьте электроснабжение помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_power)
-    def register_power(message):
-        pres.power=message.text
-        pres.save()
-        return get_water_supply(message.chat.id)
-    def get_water_supply(id):
-        msg=bot.send_message(
-            text="Отправьте водоснабжение помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_water_supply)
-    def register_water_supply(message):
-        pres.water_supply=message.text
-        pres.save()
-        return get_height(message.chat.id)
-    def get_height(id):
-        msg=bot.send_message(
-            text="Отправьте высоту потолков помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_height)
-    def register_height(message):
-        pres.power=message.text
-        pres.save()
-        return get_rate(message.chat.id)
-    def get_rate(id):
-        msg=bot.send_message(
-            text="Отправьте желаемую арендную плату помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_rate)
-    def register_rate(message):
-        pres.rate=message.text
-        pres.save()
-        return get_type_rent(message.chat.id)
-    def get_type_rent(id):
-        msg=bot.send_message(
-            text="Отправьте тип аренды помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_type_rent)
-    def register_type_rent(message):
-        pres.type_rent=message.text
-        pres.save()
-        return get_plan(message.chat.id)
-    def get_plan(id):
-        msg=bot.send_message(
-            text="Отправьте план помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_plan)
-    def register_plan(message):
+
+    def create_pres():
+        create_presentation(object=pres)
+        return
+
+    def register_additives(message):
         try:
-            pres.plan=message.document.file_id
+            pres.additives = message.text
         except Exception as e:
             print(e)
         pres.save()
-        return get_photo_outside(message.chat.id)
-    def get_photo_outside(id):
-        msg=bot.send_message(
-            text="Отправьте фото снаружи помещения",
-            chat_id=id,
+        return create_pres()
+
+    def get_additives(id_):
+        msg = bot.send_message(
+            text="Отправьте доп.пометки", chat_id=id_,
         )
-        bot.register_next_step_handler(msg, register_photo_outside)
-    def register_photo_outside(message):
-        try:
-            pres.photo_outside=message.document.file_id
-        except Exception as e:
-            print(e)
-        pres.save()
-        return get_photo_inside(message.chat.id)
-    def get_photo_inside(id):
-        msg=bot.send_message(
-            text="Отправьте фото внутри помещения",
-            chat_id=id,
-        )
-        bot.register_next_step_handler(msg, register_photo_inside)
+        bot.register_next_step_handler(msg, register_additives)
+
     def register_photo_inside(message):
         try:
-            pres.photo_inside=message.document.file_id
+            pres.photo_inside = message.document.file_id
         except Exception as e:
             print(e)
         pres.save()
         return get_additives(message.chat.id)
-    def get_additives(id):
-        msg=bot.send_message(
-            text="Отправьте доп.пометки",
-            chat_id=id,
+
+    def get_photo_inside(id_):
+        msg = bot.send_message(
+            text="Отправьте фото внутри помещения", chat_id=id_,
         )
-        bot.register_next_step_handler(msg, register_additives)
-    def register_additives(message):
+        bot.register_next_step_handler(msg, register_photo_inside)
+
+    def register_photo_outside(message):
         try:
-            pres.additives=message.text
+            pres.photo_outside = message.document.file_id
         except Exception as e:
             print(e)
         pres.save()
-        return
-    pres.save()
+        return get_photo_inside(message.chat.id)
+
+    def get_photo_outside(id_):
+        msg = bot.send_message(
+            text="Отправьте фото снаружи помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_photo_outside)
+
+    def register_plan(message):
+        try:
+            pres.plan = message.document.file_id
+        except Exception as e:
+            print(e)
+        pres.save()
+        return get_photo_outside(message.chat.id)
+
+    def get_plan(id_):
+        msg = bot.send_message(
+            text="Отправьте план помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_plan)
+
+    def register_type_rent(message):
+        pres.type_rent = message.text
+        pres.save()
+        return get_plan(message.chat.id)
+
+    def get_type_rent(id_):
+        msg = bot.send_message(
+            text="Отправьте тип аренды помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_type_rent)
+
+    def register_rate(message):
+        pres.rate = message.text
+        pres.save()
+        return get_type_rent(message.chat.id)
+
+    def get_rate(id_):
+        msg = bot.send_message(
+            text="Отправьте желаемую арендную плату помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_rate)
+
+    def register_height(message):
+        pres.height = message.text
+        pres.save()
+        return get_rate(message.chat.id)
+
+    def get_height(id_):
+        msg = bot.send_message(
+            text="Отправьте высоту потолков помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_height)
+
+    def register_water_supply(message):
+        pres.water_supply = message.text
+        pres.save()
+        return get_height(message.chat.id)
+
+    def get_water_supply(id_):
+        msg = bot.send_message(
+            text="Отправьте водоснабжение помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_water_supply)
+
+    def register_power(message):
+        pres.power = message.text
+        pres.save()
+        return get_water_supply(message.chat.id)
+
+    def get_power(id_):
+        msg = bot.send_message(
+            text="Отправьте электроснабжение помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_power)
+
+    def register_square(message):
+        pres.square = message.text
+        pres.save()
+        return get_power(message.chat.id)
+
+    def get_square(id_):
+        msg = bot.send_message(
+            text="Отправьте площадь помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_square)
+
+    def register_adress(message):
+        pres.adress = message.text
+        pres.save()
+        return get_square(message.chat.id)
+
+    def get_adress(id_):
+        msg = bot.send_message(
+            text="Отправьте адрес помещения", chat_id=id_,
+        )
+        bot.register_next_step_handler(msg, register_adress)
+
+    get_adress(call.message.chat.id)
+
+
 """@bot.message_handler(func=lambda message: True)
 def handle_message(message):
     chat_id = message.chat.id
