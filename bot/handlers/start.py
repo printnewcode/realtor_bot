@@ -11,6 +11,9 @@ import pdfkit  # Для конвертации PPTX в PDF
 import nelsie
 from docx import Document
 from docx.shared import Inches
+import os
+from datetime import datetime
+from django.conf import settings
 
 from bot import bot
 from bot.static.qna import QUESTIONS
@@ -76,43 +79,109 @@ def ask_question(call):
 
     def register_photo_inside(message):
         try:
-            pres.photo_inside = message.document.file_id
+            if message.photo:
+                # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
+                file_info = bot.get_file(message.photo[-1].file_id)
+                downloaded_file = bot.download_file(file_info.file_path)
+                
+                # Формируем путь для сохранения
+                file_name = f"inside_{message.chat.id}_{message.message_id}.jpg"
+                file_path = os.path.join(settings.MEDIA_ROOT, 'temp', file_name)
+                
+                # Создаем директории если их нет
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                
+                # Сохраняем файл
+                with open(file_path, 'wb') as new_file:
+                    new_file.write(downloaded_file)
+                
+                # Сохраняем путь в базу данных
+                pres.photo_inside = file_path
+                pres.save()
+            else:
+                bot.reply_to(message, "Пожалуйста, отправьте фотографию")
+                return get_photo_inside(message.chat.id)
         except Exception as e:
-            print(e)
-        pres.save()
+            print(f"Ошибка при сохранении фото внутри: {e}")
+            bot.reply_to(message, "Произошла ошибка при сохранении фото. Попробуйте еще раз.")
+            return get_photo_inside(message.chat.id)
         return get_additives(message.chat.id)
 
     def get_photo_inside(id_):
         msg = bot.send_message(
-            text="Отправьте фото внутри помещения", chat_id=id_,
+            text="Отправьте фото внутри помещения (отправьте как фото, не как файл)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_photo_inside)
 
     def register_photo_outside(message):
         try:
-            pres.photo_outside = message.document.file_id
+            if message.photo:
+                # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
+                file_info = bot.get_file(message.photo[-1].file_id)
+                downloaded_file = bot.download_file(file_info.file_path)
+                
+                # Формируем путь для сохранения
+                file_name = f"outside_{message.chat.id}_{message.message_id}.jpg"
+                file_path = os.path.join(settings.MEDIA_ROOT, 'temp', file_name)
+                
+                # Создаем директории если их нет
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                
+                # Сохраняем файл
+                with open(file_path, 'wb') as new_file:
+                    new_file.write(downloaded_file)
+                
+                # Сохраняем путь в базу данных
+                pres.photo_outside = file_path
+                pres.save()
+            else:
+                bot.reply_to(message, "Пожалуйста, отправьте фотографию")
+                return get_photo_outside(message.chat.id)
         except Exception as e:
-            print(e)
-        pres.save()
+            print(f"Ошибка при сохранении фото снаружи: {e}")
+            bot.reply_to(message, "Произошла ошибка при сохранении фото. Попробуйте еще раз.")
+            return get_photo_outside(message.chat.id)
         return get_photo_inside(message.chat.id)
 
     def get_photo_outside(id_):
         msg = bot.send_message(
-            text="Отправьте фото снаружи помещения", chat_id=id_,
+            text="Отправьте фото снаружи помещения (отправьте как фото, не как файл)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_photo_outside)
 
     def register_plan(message):
         try:
-            pres.plan = message.document.file_id
+            if message.photo:
+                # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
+                file_info = bot.get_file(message.photo[-1].file_id)
+                downloaded_file = bot.download_file(file_info.file_path)
+                
+                # Формируем путь для сохранения
+                file_name = f"plan_{message.chat.id}_{message.message_id}.jpg"
+                file_path = os.path.join(settings.MEDIA_ROOT, 'temp', file_name)
+                
+                # Создаем директории если их нет
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                
+                # Сохраняем файл
+                with open(file_path, 'wb') as new_file:
+                    new_file.write(downloaded_file)
+                
+                # Сохраняем путь в базу данных
+                pres.plan = file_path
+                pres.save()
+            else:
+                bot.reply_to(message, "Пожалуйста, отправьте фотографию плана")
+                return get_plan(message.chat.id)
         except Exception as e:
-            print(e)
-        pres.save()
+            print(f"Ошибка при сохранении плана: {e}")
+            bot.reply_to(message, "Произошла ошибка при сохранении плана. Попробуйте еще раз.")
+            return get_plan(message.chat.id)
         return get_photo_outside(message.chat.id)
 
     def get_plan(id_):
         msg = bot.send_message(
-            text="Отправьте план помещения", chat_id=id_,
+            text="Отправьте план помещения (отправьте как фото)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_plan)
 
@@ -240,7 +309,7 @@ def create_presentation(chat_id):
 
 """
 
-def show_all_presentations():
+def show_all_presentations(call):
     pres = Presentations.objects.all()
     for pre in pres:
         doc = Document()
@@ -253,9 +322,163 @@ def show_all_presentations():
         doc.add_paragraph(f'Высота потолков: {pre.height}')
         doc.add_paragraph(f'Желаемая арендная плата помещения: {pre.rate}')
         doc.add_paragraph(f'Тип аренды помещения: {pre.type_rent}')
-        # Вставляем изображение
-        doc.add_paragraph('Вот изображение ниже:')
-        doc.add_picture('path_to_your_image.jpg', width=Inches(2))  # Укажите путь к вашему изображению
+        
+        # Добавляем план помещения
+        if pre.plan:
+            try:
+                plan_path = os.path.join(settings.MEDIA_ROOT, str(pre.plan))
+                print(f"Путь к плану: {plan_path}")
+                print(f"Существует ли файл: {os.path.exists(plan_path)}")
+                if os.path.exists(plan_path):
+                    doc.add_heading('План помещения', level=2)
+                    doc.add_picture(plan_path, width=Inches(6))
+                else:
+                    print(f"Файл плана не найден по пути: {plan_path}")
+            except Exception as e:
+                print(f"Ошибка при добавлении плана: {e}")
+                print(f"Значение pre.plan: {pre.plan}")
+                print(f"Тип pre.plan: {type(pre.plan)}")
+        else:
+            print("План отсутствует в записи")
+        
+        # Добавляем фото снаружи
+        if pre.photo_outside:
+            try:
+                outside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_outside))
+                if os.path.exists(outside_path):
+                    doc.add_heading('Фото снаружи', level=2)
+                    doc.add_picture(outside_path, width=Inches(6))
+            except Exception as e:
+                print(f"Ошибка при добавлении фото снаружи: {e}")
+        
+        # Добавляем фото внутри
+        if pre.photo_inside:
+            try:
+                inside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_inside))
+                if os.path.exists(inside_path):
+                    doc.add_heading('Фото внутри', level=2)
+                    doc.add_picture(inside_path, width=Inches(6))
+            except Exception as e:
+                print(f"Ошибка при добавлении фото внутри: {e}")
+        
+        # Добавляем примечания
+        if pre.additives and pre.additives != "0":
+            doc.add_heading('Дополнительные примечания', level=2)
+            doc.add_paragraph(pre.additives)
 
-        # Сохраняем документ
-        doc.save('example.docx')
+        # Сохраняем документ с уникальным именем
+        doc_name = f'presentation_{pre.user.user_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+        doc_path = os.path.join(settings.MEDIA_ROOT, 'temp', doc_name)
+        
+        # Создаем директорию для временных файлов, если её нет
+        os.makedirs(os.path.dirname(doc_path), exist_ok=True)
+        
+        doc.save(doc_path)
+        
+        # Отправляем документ пользователю
+        try:
+            with open(doc_path, 'rb') as doc_file:
+                bot.send_document(call.message.chat.id, doc_file, caption="Вот ваша презентация!")
+        except Exception as e:
+            print(f"Ошибка при отправке документа: {e}")
+        finally:
+            # Удаляем файл после отправки
+            try:
+                os.remove(doc_path)
+            except Exception as e:
+                print(f"Ошибка при удалении файла: {e}")
+
+@bot.message_handler(commands=['presentations'])
+def handle_presentations(message):
+    """Обработчик команды /presentations"""
+    try:
+        pres = Presentations.objects.all()
+        if not pres.exists():
+            bot.reply_to(message, "Пока нет ни одной презентации.")
+            return
+
+        for pre in pres:
+            doc = Document()
+
+            doc.add_heading('Документ', level=1)
+            doc.add_paragraph(f'Здание по адресу: {pre.adress}')
+            doc.add_paragraph(f'Площадь: {pre.square}')
+            doc.add_paragraph(f'Электроснабжение помещения: {pre.power}')
+            doc.add_paragraph(f'Водоснабжение помещения: {pre.water_supply}')
+            doc.add_paragraph(f'Высота потолков: {pre.height}')
+            doc.add_paragraph(f'Желаемая арендная плата помещения: {pre.rate}')
+            doc.add_paragraph(f'Тип аренды помещения: {pre.type_rent}')
+            
+            # Добавляем план помещения
+            if pre.plan:
+                try:
+                    plan_path = os.path.join(settings.MEDIA_ROOT, str(pre.plan))
+                    print(f"Путь к плану: {plan_path}")
+                    print(f"Существует ли файл: {os.path.exists(plan_path)}")
+                    if os.path.exists(plan_path):
+                        doc.add_heading('План помещения', level=2)
+                        doc.add_picture(plan_path, width=Inches(6))
+                    else:
+                        print(f"Файл плана не найден по пути: {plan_path}")
+                except Exception as e:
+                    print(f"Ошибка при добавлении плана: {e}")
+                    print(f"Значение pre.plan: {pre.plan}")
+                    print(f"Тип pre.plan: {type(pre.plan)}")
+            else:
+                print("План отсутствует в записи")
+            
+            # Добавляем фото снаружи
+            if pre.photo_outside:
+                try:
+                    outside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_outside))
+                    if os.path.exists(outside_path):
+                        doc.add_heading('Фото снаружи', level=2)
+                        doc.add_picture(outside_path, width=Inches(6))
+                except Exception as e:
+                    print(f"Ошибка при добавлении фото снаружи: {e}")
+            
+            # Добавляем фото внутри
+            if pre.photo_inside:
+                try:
+                    inside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_inside))
+                    if os.path.exists(inside_path):
+                        doc.add_heading('Фото внутри', level=2)
+                        doc.add_picture(inside_path, width=Inches(6))
+                except Exception as e:
+                    print(f"Ошибка при добавлении фото внутри: {e}")
+            
+            # Добавляем примечания
+            if pre.additives and pre.additives != "0":
+                doc.add_heading('Дополнительные примечания', level=2)
+                doc.add_paragraph(pre.additives)
+
+            # Сохраняем документ с уникальным именем
+            doc_name = f'presentation_{pre.user.user_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+            doc_path = os.path.join(settings.MEDIA_ROOT, 'temp', doc_name)
+            
+            # Создаем директорию для временных файлов, если её нет
+            os.makedirs(os.path.dirname(doc_path), exist_ok=True)
+            
+            doc.save(doc_path)
+            
+            # Отправляем документ пользователю
+            try:
+                with open(doc_path, 'rb') as doc_file:
+                    bot.send_document(message.chat.id, doc_file, caption=f"Презентация для помещения по адресу: {pre.adress}")
+            except Exception as e:
+                print(f"Ошибка при отправке документа: {e}")
+                bot.reply_to(message, "Произошла ошибка при отправке документа.")
+            finally:
+                # Удаляем файл после отправки
+                try:
+                    os.remove(doc_path)
+                except Exception as e:
+                    print(f"Ошибка при удалении файла: {e}")
+                    
+    except Exception as e:
+        print(f"Общая ошибка: {e}")
+        bot.reply_to(message, f"Произошла ошибка при создании презентаций: {str(e)}")
+
+# Добавим команду в список команд бота
+if 'BOT_COMMANDS' in globals():
+    BOT_COMMANDS.append(types.BotCommand("presentations", "Показать все презентации 📄"))

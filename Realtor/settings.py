@@ -17,6 +17,7 @@ ALLOWED_HOSTS = ["*"]
 
 BOT_COMMANDS = [
     BotCommand("start", "В главное меню 📎"),
+    BotCommand("presentations", "Показать все презентации 📄"),
 ]
 SECRET_KEY = 'w337k69z4)(z^v@^(^k^^s6v^6gp!hphhk15mlt$s$c#0gwexx'
 

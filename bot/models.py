@@ -25,10 +25,10 @@ class Presentations(models.Model):
     height = models.CharField(max_length=20, default="0")
     rate = models.CharField(max_length=20, default="0")
     type_rent = models.CharField(max_length=20, default="0")
-    plan = models.CharField(default="0", max_length=200, )
-    photo_inside = models.CharField(default="0", max_length=200, )
-    photo_outside = models.CharField(default="0", max_length=200, )
-    additives = models.CharField(max_length=200, default="0")
+    plan = models.ImageField(verbose_name="План помещения", upload_to="uploads/%Y/%m/%d/plan/", null=True, blank=True)
+    photo_inside = models.ImageField(verbose_name="Фото внутри", upload_to="uploads/%Y/%m/%d/inside/", null=True, blank=True)
+    photo_outside = models.ImageField(verbose_name="Фото снаружи", upload_to="uploads/%Y/%m/%d/outside/", null=True, blank=True)
+    additives = models.CharField(max_length=200, default="0", null=True, blank=True)
 
     def __str__(self):
         return str(self.user_id)
