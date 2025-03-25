@@ -36,3 +36,15 @@ class Presentations(models.Model):
     class Meta:
         verbose_name = 'Презентация'
         verbose_name_plural = 'Презентации'
+
+
+# As example:
+class Room(models.Model):
+    location = models.CharField(max_length=255)
+    area = models.DecimalField(max_digits=10, decimal_places=2)
+    photo = models.ImageField(upload_to='room_photos/')
+    pdf_file = models.FileField(upload_to='room_pdfs/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.location
