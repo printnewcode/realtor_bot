@@ -1,18 +1,19 @@
+import os
+
 import telebot
 from telebot import types
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
-from pptx import Presentation
-from pptx.util import Inches
 from django.core.files import File
 from django.core.files.base import ContentFile
 from bot.models import Presentations, User  # Импорт вашей модели в Django
 from io import BytesIO
-import pdfkit  # Для конвертации PPTX в PDF
+from fpdf import FPDF
 import nelsie
+import requests
 
 from bot import bot
 from bot.static.qna import QUESTIONS
-from Realtor.settings import OWNER_ID
+from Realtor.settings import OWNER_ID, BOT_TOKEN
 from bot.keyboard import START_BUTTONS
 
 # Хранение данных пользователя
@@ -28,26 +29,107 @@ photo_inside=""
 photo_outside=""
 additives=""
 """
+def download_image(file_id):
+    # Здесь укажите ваш токен бота
+    file_info = bot.get_file(file_id)
+    downloaded_file=bot.download_file(file_info.file_path)
 
+    src = "bot/handlers/files/"+file_info.file_path
+    with open(src, 'wb') as new_file:
+        new_file.write(downloaded_file)
+    img = open(src, 'rb')
+    return img
+# Функция для создания PDF-презентации
+
+def create_pdf_presentation(object):
+    # Создаем экземпляр PDF
+    answers = [object.adress, object.square,object.power,object.water_supply,object.height,object.rate,object.type_rent,object.plan,object.photo_inside,object.photo_outside,object.additives]
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    photo_plan = download_image(file_id=object.plan)
+    photo_inside=download_image(file_id=object.photo_inside)
+    photo_outside=download_image(file_id=object.photo_outside)
+
+    # Первый слайд: Информация о расположении, водопроводе, электричестве
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, 'Информация о помещении', ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f'Расположение: {object.adress}')
+    pdf.multi_cell(0, 10, f'Водопровод: {object.water_supply}')
+    pdf.multi_cell(0, 10, f'Электричество: {object.power}')
+
+    # Второй слайд: Информация о цене и типе аренды
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, 'Цена и тип аренды', ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f'Предпочитаемая цена: {object.rate}')
+    pdf.multi_cell(0, 10, f'Тип аренды: {object.type_rent}')
+
+    # Третий слайд: Фото изнутри и адрес
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, 'Фото и адрес', ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f'Адрес: {object.adress}')
+    
+    # Загружаем и вставляем изображение по file_id2
+    image_file = photo_plan
+    if image_file:
+        pdf.image(image_file, x=10, w=190)
+
+    # Четвертый слайд: Фото внутри, высота потолков и площадь
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, 'Дополнительные параметры', ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f'Высота потолков: {object.height}')
+    pdf.multi_cell(0, 10, f'Площадь: {object.square}')
+    
+    # Загружаем и вставляем изображение по file_id3
+    image_file = photo_inside
+    if image_file:
+        pdf.image(image_file, x=10, w=190)
+
+    # Пятый слайд: Дополнительная информация
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, 'Дополнительная информация', ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, object.additives)
+
+    # Сохранение PDF файла
+    pdf_file_name = 'presentation.pdf'
+    pdf.output(pdf_file_name)
+    return pdf_file_name
 
 def start_message(message):
     user = User.objects.update_or_create(
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
+    create_pdf_presentation(object=Presentations.objects.filter(user=User.objects.get(user_id=message.from_user.id)).last())
     bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.",
                      reply_markup=START_BUTTONS)
 
 
-def create_presentation(object):
-    print(object.adress, object.height)
+"""def create_presentation(object):
+# Функция для загрузки изображения из Telegram по file_id"""
+
+
+
+
+"""print(object.adress, object.height)
     slides = nelsie.SlideDeck()
     for x in range(5):
         slide = slides.new_slide(bg_color="white")
         slide.text(object.adress)
     slides.render("slides.pdf")
     object.presentation = slides.render("slides.pdf")
-    object.save()
+    object.save()"""
 
 
 def ask_question(call):
@@ -55,8 +137,11 @@ def ask_question(call):
     pres.save()
 
     def create_pres():
-        create_presentation(object=pres)
-        return
+        a = create_pdf_presentation(object=pres)
+        bot.send_message(
+            text=a,
+            chat_id=call.message.chat.id
+        )
 
     def register_additives(message):
         try:
@@ -74,7 +159,7 @@ def ask_question(call):
 
     def register_photo_inside(message):
         try:
-            pres.photo_inside = message.document.file_id
+            pres.photo_inside = message.photo[len(message.photo)-1].file_id
         except Exception as e:
             print(e)
         pres.save()
@@ -88,7 +173,7 @@ def ask_question(call):
 
     def register_photo_outside(message):
         try:
-            pres.photo_outside = message.document.file_id
+            pres.photo_outside = message.photo[len(message.photo)-1].file_id
         except Exception as e:
             print(e)
         pres.save()
@@ -102,7 +187,7 @@ def ask_question(call):
 
     def register_plan(message):
         try:
-            pres.plan = message.document.file_id
+            pres.plan = message.photo[len(message.photo)-1].file_id
         except Exception as e:
             print(e)
         pres.save()
