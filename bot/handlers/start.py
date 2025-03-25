@@ -9,6 +9,8 @@ from bot.models import Presentations, User  # Импорт вашей модел
 from io import BytesIO
 import pdfkit  # Для конвертации PPTX в PDF
 import nelsie
+from docx import Document
+from docx.shared import Inches
 
 from bot import bot
 from bot.static.qna import QUESTIONS
@@ -237,3 +239,23 @@ def create_presentation(chat_id):
     del user_data[chat_id]
 
 """
+
+def show_all_presentations():
+    pres = Presentations.objects.all()
+    for pre in pres:
+        doc = Document()
+
+        doc.add_heading('Документ', level=1)
+        doc.add_paragraph(f'Здание по адресу: {pre.adress}')
+        doc.add_paragraph(f'Площадь: {pre.square}')
+        doc.add_paragraph(f'Электроснабжение помещения: {pre.power}')
+        doc.add_paragraph(f'Водоснабжение помещения: {pre.water_supply}')
+        doc.add_paragraph(f'Высота потолков: {pre.height}')
+        doc.add_paragraph(f'Желаемая арендная плата помещения: {pre.rate}')
+        doc.add_paragraph(f'Тип аренды помещения: {pre.type_rent}')
+        # Вставляем изображение
+        doc.add_paragraph('Вот изображение ниже:')
+        doc.add_picture('path_to_your_image.jpg', width=Inches(2))  # Укажите путь к вашему изображению
+
+        # Сохраняем документ
+        doc.save('example.docx')
