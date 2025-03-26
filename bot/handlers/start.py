@@ -45,8 +45,12 @@ def ask_question(call):
     pres = Presentations.objects.create(user=User.objects.get(user_id=call.message.chat.id))
     pres.save()
 
-    def create_pres():
+    def create_pres(id_):
         create_presentation(object=pres)
+        bot.send_message(
+            text="Презентация успешно создана! Она передана администратору.",
+            chat_id=id_
+        )
         return
 
     def register_additives(message):
@@ -55,7 +59,7 @@ def ask_question(call):
         except Exception as e:
             print(e)
         pres.save()
-        return create_pres()
+        return create_pres(message.chat.id)
 
     def get_additives(id_):
         msg = bot.send_message(
