@@ -48,5 +48,7 @@ def index(request: HttpRequest) -> JsonResponse:
 
 """Common"""
 start = bot.message_handler(commands=["start"])(start_message)
+admin_panel = bot.message_handler(commands=["admin"])(admin_panel)
 
 ask = bot.callback_query_handler(lambda c: c.data=="start_presentation")(ask_question)
+get_pres = bot.callback_query_handler(lambda c: c.data.startswith("pres_"))(get_pres)

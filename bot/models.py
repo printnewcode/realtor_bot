@@ -19,7 +19,7 @@ class Presentations(models.Model):
     presentation = models.FileField(verbose_name="Файл презентации", upload_to="uploads/%Y/%m/%d/pres/", null=True,
                                     blank=True)
     adress = models.CharField(max_length=100, default="0")
-    square = models.CharField(max_length=20, default="0")ы
+    square = models.CharField(max_length=20, default="0")
     power = models.CharField(max_length=20, default="0")
     water_supply = models.CharField(max_length=30, default="0")
     height = models.CharField(max_length=20, default="0")

@@ -20,29 +20,13 @@ from bot.static.qna import QUESTIONS
 from Realtor.settings import OWNER_ID
 from bot.keyboard import START_BUTTONS
 
-# Хранение данных пользователя
-"""adress=""
-square=""
-power=""
-water_supply=""
-height=""
-rate=""
-type_rent=""
-plan=""
-photo_inside=""
-photo_outside=""
-additives=""
-"""
-
-
 def start_message(message):
     user = User.objects.update_or_create(
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n**Нажимая на кнопку вы даете свое согласие на обработку ваших персональных данных!**",
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n\nНажимая на кнопку вы даете свое согласие на обработку ваших персональных данных!",
                      reply_markup=START_BUTTONS,
-                     parse_mode="Markdown"
                      )
 
 
@@ -276,50 +260,6 @@ def ask_question(call):
     get_contact(call.message.chat.id)
 
 
-"""@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    chat_id = message.chat.id
-
-    if chat_id in user_data and user_data[chat_id][-1] is None:
-        user_data[chat_id][-1] = message.text
-        next_question_index = len(user_data[chat_id])
-        ask_question(chat_id, next_question_index)
-    
-    elif message.content_type == 'photo':
-        user_data[chat_id][-1] = message.photo[-1].file_id
-        next_question_index = len(user_data[chat_id])
-        ask_question(chat_id, next_question_index)
-
-@bot.message_handler(content_types=['document'])
-def handle_document(message):
-    chat_id = message.chat.id
-    if chat_id in user_data:
-        user_data[chat_id][-1] = message.document.file_id
-        next_question_index = len(user_data[chat_id])
-        ask_question(chat_id, next_question_index)
-
-def create_presentation(chat_id):
-    prs = Presentation()
-    slide = prs.slides.add_slide(prs.slide_layouts[5])  # пустой слайд
-
-    # Добавление информации в слайд
-    for question, answer in zip(questions, user_data[chat_id]):
-        textbox = slide.shapes.add_textbox(Inches(1), Inches(1), Inches(8), Inches(5))
-        text_frame = textbox.text_frame
-        text_frame.text = f"{question} {answer}"
-
-    presentation_path = 'presentation.pptx'
-    prs.save(presentation_path)
-
-    # Отправляем пользователю
-    with open(presentation_path, 'rb') as f:
-        bot.send_document(chat_id, f)
-
-    # Очищаем данные пользователя
-    del user_data[chat_id]
-
-"""
-
 def show_all_presentations(call):
     pres = Presentations.objects.all()
     for pre in pres:
@@ -389,7 +329,10 @@ def show_all_presentations(call):
         # Отправляем документ пользователю
         try:
             with open(doc_path, 'rb') as doc_file:
+                pre.presentation=doc_file
+                pre.save()
                 bot.send_document(call.message.chat.id, doc_file, caption="Вот ваша презентация!")
+                
         except Exception as e:
             print(f"Ошибка при отправке документа: {e}")
         finally:
@@ -494,6 +437,3 @@ def handle_presentations(message):
         print(f"Общая ошибка: {e}")
         bot.reply_to(message, f"Произошла ошибка при создании презентаций: {str(e)}")
 
-# Добавим команду в список команд бота
-if 'BOT_COMMANDS' in globals():
-    BOT_COMMANDS.append(types.BotCommand("presentations", "Показать все презентации 📄"))
