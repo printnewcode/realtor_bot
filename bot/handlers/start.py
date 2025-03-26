@@ -403,7 +403,11 @@ def show_all_presentations(call):
 def handle_presentations(message):
     """Обработчик команды /presentations"""
     try:
-        pres = Presentations.objects.all()
+        user = User.objects.filter(user_id=message.chat.id).first()
+    except:
+        print("Пользователь незарегистрирован")
+    try:
+        pres = Presentations.objects.filter(user=user)
         if not pres.exists():
             bot.reply_to(message, "Пока нет ни одной презентации.")
             return
