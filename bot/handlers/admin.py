@@ -45,7 +45,7 @@ def admin_panel(message):
         )
 def get_pres(call):
     _, data = call.data.split("_")
-    presentation = Presentations.objects.get(pk=data)
+    presentation = Presentations.objects.filter(pk=data).first()
 
     with presentation as pre:
         
