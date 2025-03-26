@@ -329,7 +329,7 @@ def show_all_presentations(call):
         # Отправляем документ пользователю
         try:
             with open(doc_path, 'rb') as doc_file:
-                pre.presentation=doc_file
+                pre.presentation=doc_path
                 pre.save()
                 bot.send_document(call.message.chat.id, doc_file, caption="Вот ваша презентация!")
                 
