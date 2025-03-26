@@ -26,13 +26,18 @@ def admin_panel(message):
     admin = User.objects.get(user_id=message.from_user.id)
     presentations = Presentations.objects.all().order_by('pk')
     reply = InlineKeyboardMarkup()
-    for pres in presentations:
-        reply.add(InlineKeyboardButton(text=f"Презентация {pres.pk}", callback_data=f"pres_{pres.pk}"))
-    try:    
-        bot.send_message(text="Вот все презентации!", chat_id=message.chat.id, reply_markup=reply)
+    try:
+        for pres in presentations:
+            reply.add(InlineKeyboardButton(text=f"Презентация {pres.pk}", callback_data=f"pres_{pres.pk}"))
+        try:    
+            bot.send_message(text="Вот все презентации!", chat_id=message.chat.id, reply_markup=reply)
+        except:
+            bot.send_message(text="Презентаций нет!", chat_id=message.chat.id)
     except:
-        bot.send_message(text="Презентаций нет!", chat_id=message.chat.id)
-
+        bot.send_message(
+            text="Упс, презентаций нет!",
+            chat_id=message.chat.id
+        )
 def get_pres(call):
     _, data = call.data.split("_")
     presentation = Presentations.objects.get(pk=data)
