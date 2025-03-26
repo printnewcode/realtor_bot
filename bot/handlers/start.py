@@ -40,8 +40,10 @@ def start_message(message):
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.",
-                     reply_markup=START_BUTTONS)
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n**Нажимая на кнопку вы даете свое согласие на обработку ваших персональных данных!**",
+                     reply_markup=START_BUTTONS,
+                     parse_mode="Markdown"
+                     )
 
 
 def create_presentation(object):
@@ -261,8 +263,17 @@ def ask_question(call):
             text="Отправьте адрес помещения", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_adress)
+    def register_contact(message):
+        pres.contact = message.text
+        pres.save()
+        return get_adress(message.chat.id)
+    def get_contact(id_):
+        msg = bot.send_message(
+            text="Отправьте свое ФИО и номер телефона", chat_id=id_
+        )
+        bot.register_next_step_handler(msg, register_contact)
 
-    get_adress(call.message.chat.id)
+    get_contact(call.message.chat.id)
 
 
 """@bot.message_handler(func=lambda message: True)
