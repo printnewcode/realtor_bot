@@ -55,7 +55,6 @@ def ask_question(call):
 
     def create_pres(message):
         if check_exit(message):
-            pres.delete()
             return
         create_presentation(object=pres)
         bot.send_message(
@@ -72,7 +71,6 @@ def ask_question(call):
         bot.register_next_step_handler(msg, create_pres)
     def register_number(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.contact += message.text
         pres.save()
@@ -85,7 +83,6 @@ def ask_question(call):
 
     def register_contact(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.contact = f"{message.text}\n"
         pres.save()
@@ -97,7 +94,6 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_contact)
     def register_additives(message):
         if check_exit(message):
-            pres.delete()
             return
         if message.text == "Пометки отсутствуют":
             return get_contact(message.chat.id)
@@ -117,7 +113,6 @@ def ask_question(call):
 
     def register_photo_inside(message):
         if check_exit(message):
-            pres.delete()
             return
         try:
             if message.photo:
@@ -156,7 +151,6 @@ def ask_question(call):
 
     def register_photo_outside(message):
         if check_exit(message):
-            pres.delete()
             return
         try:
             if message.photo:
@@ -195,7 +189,6 @@ def ask_question(call):
 
     def register_plan(message):
         if check_exit(message):
-            pres.delete()
             return
         try:
             if message.photo:
@@ -234,7 +227,6 @@ def ask_question(call):
 
     def register_type_rent(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.type_rent = message.text
         pres.save()
@@ -248,7 +240,6 @@ def ask_question(call):
 
     def register_rate(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.rate = message.text
         pres.save()
@@ -262,7 +253,6 @@ def ask_question(call):
 
     def register_height(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.height = message.text
         pres.save()
@@ -275,7 +265,6 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_height)
     def register_floor(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.floor = message.text
         pres.save()
@@ -290,7 +279,6 @@ def ask_question(call):
 
     def register_water_supply(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.water_supply = message.text
         pres.save()
@@ -304,7 +292,6 @@ def ask_question(call):
 
     def register_power(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.power = message.text
         pres.save()
@@ -318,7 +305,6 @@ def ask_question(call):
 
     def register_square(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.square = message.text
         pres.save()
@@ -332,7 +318,6 @@ def ask_question(call):
 
     def register_adress(message):
         if check_exit(message):
-            pres.delete()
             return
         pres.adress = message.text
         pres.save()
@@ -345,7 +330,6 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_adress)
     def register_type_building(message):
         if check_exit(message):
-            pres.delete()
             return
 
         pres.type_building = message.text
