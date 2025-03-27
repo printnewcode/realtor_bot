@@ -134,7 +134,7 @@ def get_pres(call):
     )
 
 
-def admin_notification(presentation):
+def admin_notification(presentation, id_):
     admin_list = User.objects.filter(is_admin=True)
     pre = presentation
     doc = Document()
@@ -213,5 +213,6 @@ def admin_notification(presentation):
             except Exception as e:
                 print(f"Ошибка при удалении файла: {e}")
         bot.send_message(
-            text=f"Пользователь @{presentation.user.username} создал презентацию.\n\nКонтактные данные: {presentation.contact}\n\nID: {presentation.pk}"
+            text=f"Пользователь @{presentation.user.username} создал презентацию.\n\nКонтактные данные: {presentation.contact}\n\nID: {presentation.pk}",
+            chat_id=id_
         )
