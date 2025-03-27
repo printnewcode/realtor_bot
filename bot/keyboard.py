@@ -10,7 +10,7 @@ from telebot.types import (
 EXIT_BUTTON = InlineKeyboardMarkup()
 exit = InlineKeyboardButton(text="Прекратить создание предложения", callback_data="exit_")
 EXIT_BUTTON.add(exit)
-EXIT_REPLY = ReplyKeyboardMarkup()
+EXIT_REPLY = ReplyKeyboardMarkup(one_time_keyboard=True)
 exit_reply = KeyboardButton("Прекратить создание предложения")
 EXIT_REPLY.add(exit_reply)
 
