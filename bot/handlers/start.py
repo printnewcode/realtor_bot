@@ -48,6 +48,7 @@ def ask_question(call):
     def check_exit(message):
         if message.text == "Прекратить создание предложения":
             pres.delete()
+            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
             return start_message(message)
         
 
