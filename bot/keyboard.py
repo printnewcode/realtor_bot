@@ -14,6 +14,12 @@ EXIT_REPLY = ReplyKeyboardMarkup(one_time_keyboard=True)
 exit_reply = KeyboardButton("Прекратить создание предложения")
 EXIT_REPLY.add(exit_reply)
 
+contact_button = KeyboardButton(text="Предоставить номер телефона", request_contact=True)
+EXIT_CONTACT = ReplyKeyboardMarkup()
+EXIT_CONTACT.add(contact_button).add(exit)
+
+
+
 START_BUTTONS = InlineKeyboardMarkup()
 start_button = InlineKeyboardButton(text="Предложить площадь в аренду", callback_data="start_presentation")
 START_BUTTONS.add(start_button)

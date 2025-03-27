@@ -7,7 +7,7 @@ from django.conf import settings
 
 from bot import bot
 from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, \
-    SKIP_BUTTON, EXIT_REPLY, EXIT_BUTTON
+    SKIP_BUTTON, EXIT_REPLY, EXIT_BUTTON, EXIT_CONTACT
 
 
 def start_message(message):
@@ -66,7 +66,7 @@ def ask_question(call):
 
     def get_number(id_):
         msg = bot.send_message(
-            text="Телефон для связи", chat_id=id_,
+            text="Телефон для связи", chat_id=id_, reply_markup=EXIT_CONTACT
         )
         bot.register_next_step_handler(msg, register_number)
 
@@ -79,7 +79,7 @@ def ask_question(call):
 
     def get_contact(id_):
         msg = bot.send_message(
-            text="Как к вам обращаться (ФИО)", chat_id=id_,
+            text="Как к вам обращаться (ФИО)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_contact)
 
@@ -228,7 +228,7 @@ def ask_question(call):
 
     def get_type_rent(id_):
         msg = bot.send_message(
-            text="Выюерите тип аренды помещения", chat_id=id_, reply_markup=TYPE_RENT
+            text="Выберите тип аренды помещения", chat_id=id_, reply_markup=TYPE_RENT
         )
         bot.register_next_step_handler(msg, register_type_rent)
 
