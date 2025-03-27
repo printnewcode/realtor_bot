@@ -18,7 +18,7 @@ from django.conf import settings
 from bot import bot
 from bot.static.qna import QUESTIONS
 from Realtor.settings import OWNER_ID
-from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, SKIP_BUTTON
+from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, SKIP_BUTTON, EXIT_REPLY
 
 def start_message(message):
     user = User.objects.update_or_create(
@@ -45,7 +45,14 @@ def ask_question(call):
     pres = Presentations.objects.create(user=User.objects.get(user_id=call.message.chat.id))
     pres.save()
 
+    def check_exit(message):
+        if message.text == "Прекратить создание предложения":
+            pres.delete()
+            return start_message(message)
+        
+
     def create_pres(message):
+        check_exit(message)
         create_presentation(object=pres)
         bot.send_message(
             text="Информация передана агенту\n\nНаши контакты для связи: +7 933 481 00 01",
@@ -60,6 +67,7 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, create_pres)
     def register_number(message):
+        check_exit(message)
         pres.contact += message.text
         pres.save()
         return agreement(message.chat.id)
@@ -70,6 +78,7 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_number)
 
     def register_contact(message):
+        check_exit(message)
         pres.contact = f"{message.text}\n"
         pres.save()
         return get_number(message.chat.id)
@@ -79,6 +88,7 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, register_contact)
     def register_additives(message):
+        check_exit(message)
         if message.text == "Пометки отсутствуют":
             return get_contact(message.chat.id)
     
@@ -96,6 +106,7 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_additives)
 
     def register_photo_inside(message):
+        check_exit(message)
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -127,11 +138,12 @@ def ask_question(call):
 
     def get_photo_inside(id_):
         msg = bot.send_message(
-            text="Отправьте фото внутри помещения (отправьте как фото, не как файл)", chat_id=id_,
+            text="Отправьте фото внутри помещения (отправьте как фото, не как файл)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_photo_inside)
 
     def register_photo_outside(message):
+        check_exit(message)
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -163,11 +175,12 @@ def ask_question(call):
 
     def get_photo_outside(id_):
         msg = bot.send_message(
-            text="Отправьте фото снаружи помещения (отправьте как фото, не как файл)", chat_id=id_,
+            text="Отправьте фото снаружи помещения (отправьте как фото, не как файл)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_photo_outside)
 
     def register_plan(message):
+        check_exit(message)
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -199,11 +212,12 @@ def ask_question(call):
 
     def get_plan(id_):
         msg = bot.send_message(
-            text="Отправьте план помещения (отправьте как фото)", chat_id=id_,
+            text="Отправьте план помещения (отправьте как фото)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_plan)
 
     def register_type_rent(message):
+        check_exit(message)
         pres.type_rent = message.text
         pres.save()
         return get_plan(message.chat.id)
@@ -215,28 +229,31 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_type_rent)
 
     def register_rate(message):
+        check_exit(message)
         pres.rate = message.text
         pres.save()
         return get_type_rent(message.chat.id)
 
     def get_rate(id_):
         msg = bot.send_message(
-            text="Желаемая арендная плата в месяц, рубли (указывать только цифры)", chat_id=id_,
+            text="Желаемая арендная плата в месяц, рубли (указывать только цифры)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_rate)
 
     def register_height(message):
+        check_exit(message)
         pres.height = message.text
         pres.save()
         return get_rate(message.chat.id)
 
     def get_height(id_):
         msg = bot.send_message(
-            text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_,
+            text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_height)
 
     def register_water_supply(message):
+        check_exit(message)
         pres.water_supply = message.text
         pres.save()
         return get_height(message.chat.id)
@@ -248,38 +265,43 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_water_supply)
 
     def register_power(message):
+        check_exit(message)
         pres.power = message.text
         pres.save()
         return get_water_supply(message.chat.id)
 
     def get_power(id_):
         msg = bot.send_message(
-            text="Мощность, кВт (указывать только цифру)", chat_id=id_,
+            text="Мощность, кВт (указывать только цифру)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_power)
 
     def register_square(message):
+        check_exit(message)
         pres.square = message.text
         pres.save()
         return get_power(message.chat.id)
 
     def get_square(id_):
         msg = bot.send_message(
-            text="Площадь помещения, метры квадратные (указывать только цифру)", chat_id=id_,
+            text="Площадь помещения, метры квадратные (указывать только цифру)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_square)
 
     def register_adress(message):
+        check_exit(message)
         pres.adress = message.text
         pres.save()
         return get_square(message.chat.id)
 
     def get_adress(id_):
         msg = bot.send_message(
-            text="Адрес помещения", chat_id=id_,
+            text="Адрес помещения", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_adress)
     def register_type_building(message):
+        check_exit(message)
+
         pres.type_building = message.text
         pres.save()
         return get_adress(message.chat.id)
