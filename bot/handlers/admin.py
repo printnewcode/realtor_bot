@@ -9,6 +9,7 @@ from datetime import datetime
 from bot import bot
 from bot.models import User, Presentations
 
+
 def admin_permission(func):
     """
     Checking user for admin permission to access the function.
@@ -25,6 +26,7 @@ def admin_permission(func):
 
     return wrapped
 
+
 @admin_permission
 def admin_panel(message):
     """Админ-панель"""
@@ -34,7 +36,7 @@ def admin_panel(message):
     try:
         for pres in presentations:
             reply.add(InlineKeyboardButton(text=f"Презентация {pres.pk}", callback_data=f"pres_{pres.pk}"))
-        try:    
+        try:
             bot.send_message(text="Вот все презентации!", chat_id=message.chat.id, reply_markup=reply)
         except:
             bot.send_message(text="Презентаций нет!", chat_id=message.chat.id)
@@ -43,6 +45,8 @@ def admin_panel(message):
             text="Упс, презентаций нет!",
             chat_id=message.chat.id
         )
+
+
 def get_pres(call):
     _, data = call.data.split("_")
     presentation = Presentations.objects.filter(pk=data).first()
@@ -84,9 +88,9 @@ def get_pres(call):
             print(f"Значение pre.plan: {pre.plan}")
             print(f"Тип pre.plan: {type(pre.plan)}")
     else:
-        print("План отсутствует в записи")    
+        print("План отсутствует в записи")
 
-    # Добавляем фото внутри
+        # Добавляем фото внутри
     if pre.photo_inside:
         try:
             inside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_inside))
@@ -113,7 +117,8 @@ def get_pres(call):
     # Отправляем документ пользователю
     try:
         with open(doc_path, 'rb') as doc_file:
-            bot.send_document(call.message.chat.id, doc_file, caption=f"Презентация для помещения по адресу: {pre.adress}")
+            bot.send_document(call.message.chat.id, doc_file,
+                              caption=f"Презентация для помещения по адресу: {pre.adress}")
     except Exception as e:
         print(f"Ошибка при отправке документа: {e}")
         bot.reply_to(call.message, "Произошла ошибка при отправке документа.")
@@ -128,8 +133,9 @@ def get_pres(call):
         chat_id=call.message.chat.id
     )
 
+
 def admin_notification(presentation):
-    admin_list = User.objects.filet(is_admin=True)
+    admin_list = User.objects.filter(is_admin=True)
     pre = presentation
     doc = Document()
 
