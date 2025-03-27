@@ -18,14 +18,14 @@ from django.conf import settings
 from bot import bot
 from bot.static.qna import QUESTIONS
 from Realtor.settings import OWNER_ID
-from bot.keyboard import START_BUTTONS
+from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, SKIP_BUTTON
 
 def start_message(message):
     user = User.objects.update_or_create(
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n\nНажимая на кнопку вы даете свое согласие на обработку ваших персональных данных!",
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении",
                      reply_markup=START_BUTTONS,
                      )
 
@@ -45,25 +45,53 @@ def ask_question(call):
     pres = Presentations.objects.create(user=User.objects.get(user_id=call.message.chat.id))
     pres.save()
 
-    def create_pres(id_):
+    def create_pres(message):
         create_presentation(object=pres)
         bot.send_message(
-            text="Презентация успешно создана! Она передана администратору.",
-            chat_id=id_
+            text="Информация передана агенту\n\nНаши контакты для связи: +7 933 481 00 01",
+            chat_id=message.chat.id,
         )
         return
+    def agreement(id_):
+        msg = bot.send_message(
+            text="Для продолжения нужно подтвердить свое согласие на обработку данных, нажав на кнопку ниже",
+            chat_id=id_,
+            reply_markup=AGGREMENT_BUTTON,
+        )
+        bot.register_next_step_handler(msg, create_pres)
+    def register_number(message):
+        pres.contact += message.text
+        pres.save()
+        return agreement(message.chat.id)
+    def get_number(id_):
+        msg = bot.send_message(
+            text="Телефон для связи", chat_id=id_, 
+        )
+        bot.register_next_step_handler(msg, register_number)
 
+    def register_contact(message):
+        pres.contact += f"{message.text}\n"
+        pres.save()
+        return get_number(message.chat.id)
+    def get_contact(id_):
+        msg = bot.send_message(
+            text="Как к вам обращаться (ФИО)", chat_id=id_, 
+        )
+        bot.register_next_step_handler(msg, register_contact)
     def register_additives(message):
+        if message.text == "Пометки отсутствуют":
+            return get_contact(message.chat.id)
+    
         try:
             pres.additives = message.text
         except Exception as e:
             print(e)
         pres.save()
-        return create_pres(message.chat.id)
+        return get_contact(message.chat.id)
 
     def get_additives(id_):
         msg = bot.send_message(
-            text="Отправьте доп.пометки", chat_id=id_,
+            text="Если у вас остались комментарии и пожелания - напишите их сюда\n\nЕсли пометок нет - нажмите на кнопку", chat_id=id_, reply_markup = SKIP_BUTTON
         )
         bot.register_next_step_handler(msg, register_additives)
 
@@ -182,7 +210,7 @@ def ask_question(call):
 
     def get_type_rent(id_):
         msg = bot.send_message(
-            text="Отправьте тип аренды помещения", chat_id=id_,
+            text="Выюерите тип аренды помещения", chat_id=id_, reply_markup=TYPE_RENT
         )
         bot.register_next_step_handler(msg, register_type_rent)
 
@@ -193,7 +221,7 @@ def ask_question(call):
 
     def get_rate(id_):
         msg = bot.send_message(
-            text="Отправьте желаемую арендную плату помещения", chat_id=id_,
+            text="Желаемая арендная плата в месяц", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_rate)
 
@@ -204,7 +232,7 @@ def ask_question(call):
 
     def get_height(id_):
         msg = bot.send_message(
-            text="Отправьте высоту потолков помещения", chat_id=id_,
+            text="Высота потолков помещения", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_height)
 
@@ -215,7 +243,7 @@ def ask_question(call):
 
     def get_water_supply(id_):
         msg = bot.send_message(
-            text="Отправьте водоснабжение помещения", chat_id=id_,
+            text="Наличие водоснабжения и водоотведения помещения (Да/Нет)", chat_id=id_, reply_markup=WATER_SUPPLY
         )
         bot.register_next_step_handler(msg, register_water_supply)
 
@@ -226,7 +254,7 @@ def ask_question(call):
 
     def get_power(id_):
         msg = bot.send_message(
-            text="Отправьте электроснабжение помещения", chat_id=id_,
+            text="Мощность, кВт", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_power)
 
@@ -237,7 +265,7 @@ def ask_question(call):
 
     def get_square(id_):
         msg = bot.send_message(
-            text="Отправьте площадь помещения", chat_id=id_,
+            text="Площадь помещения (квадратные метры)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_square)
 
@@ -248,20 +276,22 @@ def ask_question(call):
 
     def get_adress(id_):
         msg = bot.send_message(
-            text="Отправьте адрес помещения", chat_id=id_,
+            text="Адрес помещения", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_adress)
-    def register_contact(message):
-        pres.contact = message.text
+    def register_type_building(message):
+        pres.type_building = message.text
         pres.save()
         return get_adress(message.chat.id)
-    def get_contact(id_):
-        msg = bot.send_message(
-            text="Отправьте свое ФИО и номер телефона", chat_id=id_
-        )
-        bot.register_next_step_handler(msg, register_contact)
 
-    get_contact(call.message.chat.id)
+    def get_type_building(id_):
+        msg = bot.send_message(
+            text="Тип помещения", chat_id=id_, reply_markup=TYPE_AREA
+        )
+        bot.register_next_step_handler(msg, register_type_building)
+    
+
+    get_type_building(call.message.chat.id)
 
 
 def show_all_presentations(call):

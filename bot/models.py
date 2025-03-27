@@ -18,6 +18,7 @@ class Presentations(models.Model):
     contact = models.CharField(verbose_name="Контактные данные", max_length=100, default = "Нету")
     presentation = models.FileField(verbose_name="Файл презентации", upload_to="uploads/%Y/%m/%d/pres/", null=True,
                                     blank=True)
+    type_building = models.CharField(verbose_name = "Тип помещения", max_length=100, default = "0")
     adress = models.CharField(max_length=100, default="0")
     square = models.CharField(max_length=20, default="0")
     power = models.CharField(max_length=20, default="0")
