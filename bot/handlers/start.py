@@ -44,7 +44,7 @@ def ask_question(call):
             return
         # create_presentation(object=pres)
         bot.send_message(
-            text="Информация передана агенту\n\nНаши контакты для связи: +7 933 481 00 01",
+            text="✉ Информация передана агенту\n\n📞 Наши контакты для связи: +7 933 481 00 01",
             chat_id=message.chat.id,
         )
         return
@@ -241,7 +241,7 @@ def ask_question(call):
 
     def get_rate(id_):
         msg = bot.send_message(
-            text="Желаемая арендная плата в месяц, рубли (указывать только цифры)", chat_id=id_,
+            text="Желаемая арендная плата в месяц, рубли/в месяц (указывать только цифры)", chat_id=id_,
             reply_markup=EXIT_BUTTON
         )
         bot.register_next_step_handler(msg, register_rate)
@@ -334,7 +334,7 @@ def ask_question(call):
 
     def get_type_building(id_):
         msg = bot.send_message(
-            text="Тип помещения", chat_id=id_, reply_markup=TYPE_AREA
+            text="Выберите тип помещения", chat_id=id_, reply_markup=TYPE_AREA
         )
         bot.register_next_step_handler(msg, register_type_building)
 

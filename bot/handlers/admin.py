@@ -50,7 +50,7 @@ def get_pres(call):
     doc = Document()
 
     doc.add_heading(f'{pre.square} кв.м., {pre.adress}', level=1)
-    doc.add_paragraph(f'Ставка аренды: {pre.rate} руб.')
+    doc.add_paragraph(f'Ставка аренды: {pre.rate} руб./месяц')
     doc.add_paragraph(f'Площадь: {pre.square} кв.м.')
     if pre.photo_outside:
         try:
