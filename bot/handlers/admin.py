@@ -50,8 +50,8 @@ def get_pres(call):
     doc = Document()
 
     doc.add_heading(f'{pre.square} кв.м., {pre.adress}', level=1)
-    doc.add_paragraph(f'Ставка аренды: {pre.rate}')
-    doc.add_paragraph(f'Площадь: {pre.square}')
+    doc.add_paragraph(f'Ставка аренды: {pre.rate} руб.')
+    doc.add_paragraph(f'Площадь: {pre.square} кв.м.')
     if pre.photo_outside:
         try:
             outside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_outside))
@@ -63,10 +63,10 @@ def get_pres(call):
     doc.add_heading("Характеристики")
     doc.add_paragraph(f'Тип помещения: {pre.type_building}')
     doc.add_paragraph(f'Расположение по адресу: {pre.adress}')
-    doc.add_paragraph(f'Площадь помещения: {pre.square}')
-    doc.add_paragraph(f'Мощность: {pre.power}')
+    doc.add_paragraph(f'Площадь помещения: {pre.square} кв.м.')
+    doc.add_paragraph(f'Мощность: {pre.power} кВт')
     doc.add_paragraph(f'Водоснабжение помещения: {pre.water_supply}')
-    doc.add_paragraph(f'Высота потолков: {pre.height}')
+    doc.add_paragraph(f'Высота потолков: {pre.height} метра')
     doc.add_paragraph(f'Тип аренды помещения: {pre.type_rent}')
     # Добавляем план помещения
     if pre.plan:

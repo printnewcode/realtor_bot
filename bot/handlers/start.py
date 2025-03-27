@@ -221,7 +221,7 @@ def ask_question(call):
 
     def get_rate(id_):
         msg = bot.send_message(
-            text="Желаемая арендная плата в месяц", chat_id=id_,
+            text="Желаемая арендная плата в месяц, рубли (указывать только цифры)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_rate)
 
@@ -232,7 +232,7 @@ def ask_question(call):
 
     def get_height(id_):
         msg = bot.send_message(
-            text="Высота потолков помещения", chat_id=id_,
+            text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_height)
 
@@ -254,7 +254,7 @@ def ask_question(call):
 
     def get_power(id_):
         msg = bot.send_message(
-            text="Мощность, кВт", chat_id=id_,
+            text="Мощность, кВт (указывать только цифру)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_power)
 
@@ -265,7 +265,7 @@ def ask_question(call):
 
     def get_square(id_):
         msg = bot.send_message(
-            text="Площадь помещения (указывать только цифру)", chat_id=id_,
+            text="Площадь помещения, метры квадратные (указывать только цифру)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_square)
 
