@@ -6,8 +6,9 @@ from datetime import datetime
 from django.conf import settings
 
 from bot import bot
+from bot.handlers.admin import admin_notification
 from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, \
-    SKIP_BUTTON, EXIT_REPLY, EXIT_BUTTON, EXIT_CONTACT
+    SKIP_BUTTON
 
 
 def start_message(message):
@@ -47,6 +48,7 @@ def ask_question(call):
             text="✉ Информация передана агенту\n\n📞 Наши контакты для связи: +7 933 481 00 01",
             chat_id=message.chat.id,
         )
+        admin_notification(pres)
         return
 
     def agreement(id_):
@@ -66,7 +68,7 @@ def ask_question(call):
 
     def get_number(id_):
         msg = bot.send_message(
-            text="Телефон для связи", chat_id=id_, reply_markup=EXIT_CONTACT
+            text="Телефон для связи", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_number)
 
@@ -79,7 +81,7 @@ def ask_question(call):
 
     def get_contact(id_):
         msg = bot.send_message(
-            text="Как к вам обращаться (ФИО)", chat_id=id_, reply_markup=EXIT_REPLY
+            text="Как к вам обращаться (ФИО)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_contact)
 
@@ -176,8 +178,7 @@ def ask_question(call):
 
     def get_photo_outside(id_):
         msg = bot.send_message(
-            text="Отправьте фото снаружи помещения (отправьте как фото, не как файл)", chat_id=id_,
-            reply_markup=EXIT_BUTTON
+            text="Отправьте фото снаружи помещения (отправьте как фото, не как файл)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_photo_outside)
 
@@ -215,7 +216,7 @@ def ask_question(call):
 
     def get_plan(id_):
         msg = bot.send_message(
-            text="Отправьте план помещения (отправьте как фото)", chat_id=id_, reply_markup=EXIT_BUTTON
+            text="Отправьте план помещения (отправьте как фото)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_plan)
 
@@ -241,8 +242,7 @@ def ask_question(call):
 
     def get_rate(id_):
         msg = bot.send_message(
-            text="Желаемая арендная плата в месяц, рубли/в месяц (указывать только цифры)", chat_id=id_,
-            reply_markup=EXIT_BUTTON
+            text="Желаемая арендная плата в месяц, рубли/в месяц (указывать только цифры)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_rate)
 
@@ -255,7 +255,7 @@ def ask_question(call):
 
     def get_height(id_):
         msg = bot.send_message(
-            text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_, reply_markup=EXIT_BUTTON
+            text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_height)
 
@@ -294,7 +294,7 @@ def ask_question(call):
 
     def get_power(id_):
         msg = bot.send_message(
-            text="Мощность, кВт (указывать только цифру)", chat_id=id_, reply_markup=EXIT_BUTTON
+            text="Мощность, кВт (указывать только цифру)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_power)
 
@@ -307,7 +307,7 @@ def ask_question(call):
 
     def get_square(id_):
         msg = bot.send_message(
-            text="Площадь помещения, метры квадратные (указывать только цифру)", chat_id=id_, reply_markup=EXIT_BUTTON
+            text="Площадь помещения, метры квадратные (указывать только цифру)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_square)
 
@@ -320,7 +320,7 @@ def ask_question(call):
 
     def get_adress(id_):
         msg = bot.send_message(
-            text="Адрес помещения", chat_id=id_, reply_markup=EXIT_BUTTON
+            text="Адрес помещения", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_adress)
 
