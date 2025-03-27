@@ -315,7 +315,7 @@ def ask_question(call):
     
 
     get_type_building(call.message.chat.id)
-
+    return
 
 def show_all_presentations(call):
     pres = Presentations.objects.all()
