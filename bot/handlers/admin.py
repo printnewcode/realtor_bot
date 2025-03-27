@@ -49,15 +49,25 @@ def get_pres(call):
     pre = presentation
     doc = Document()
 
-    doc.add_heading('Документ', level=1)
-    doc.add_paragraph(f'Здание по адресу: {pre.adress}')
+    doc.add_heading(f'{pre.square} кв.м., {pre.adress}', level=1)
+    doc.add_paragraph(f'Ставка аренды: {pre.rate}')
     doc.add_paragraph(f'Площадь: {pre.square}')
-    doc.add_paragraph(f'Электроснабжение помещения: {pre.power}')
+    if pre.photo_outside:
+        try:
+            outside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_outside))
+            if os.path.exists(outside_path):
+                doc.add_heading('Фото снаружи', level=2)
+                doc.add_picture(outside_path, width=Inches(6))
+        except Exception as e:
+            print(f"Ошибка при добавлении фото снаружи: {e}")
+    doc.add_heading("Характеристики")
+    doc.add_paragraph(f'Тип помещения: {pre.type_building}')
+    doc.add_paragraph(f'Расположение по адресу: {pre.adress}')
+    doc.add_paragraph(f'Площадь помещения: {pre.square}')
+    doc.add_paragraph(f'Мощность: {pre.power}')
     doc.add_paragraph(f'Водоснабжение помещения: {pre.water_supply}')
     doc.add_paragraph(f'Высота потолков: {pre.height}')
-    doc.add_paragraph(f'Желаемая арендная плата помещения: {pre.rate}')
     doc.add_paragraph(f'Тип аренды помещения: {pre.type_rent}')
-
     # Добавляем план помещения
     if pre.plan:
         try:
@@ -74,17 +84,7 @@ def get_pres(call):
             print(f"Значение pre.plan: {pre.plan}")
             print(f"Тип pre.plan: {type(pre.plan)}")
     else:
-        print("План отсутствует в записи")
-
-    # Добавляем фото снаружи
-    if pre.photo_outside:
-        try:
-            outside_path = os.path.join(settings.MEDIA_ROOT, str(pre.photo_outside))
-            if os.path.exists(outside_path):
-                doc.add_heading('Фото снаружи', level=2)
-                doc.add_picture(outside_path, width=Inches(6))
-        except Exception as e:
-            print(f"Ошибка при добавлении фото снаружи: {e}")
+        print("План отсутствует в записи")    
 
     # Добавляем фото внутри
     if pre.photo_inside:

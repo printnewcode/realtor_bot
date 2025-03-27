@@ -265,7 +265,7 @@ def ask_question(call):
 
     def get_square(id_):
         msg = bot.send_message(
-            text="Площадь помещения (квадратные метры)", chat_id=id_,
+            text="Площадь помещения (указывать только цифру)", chat_id=id_,
         )
         bot.register_next_step_handler(msg, register_square)
 
@@ -299,7 +299,7 @@ def show_all_presentations(call):
     for pre in pres:
         doc = Document()
 
-        doc.add_heading('Документ', level=1)
+        doc.add_heading(f"{pre.square} кв.м., {pre.adress}", level=1)
         doc.add_paragraph(f'Здание по адресу: {pre.adress}')
         doc.add_paragraph(f'Площадь: {pre.square}')
         doc.add_paragraph(f'Электроснабжение помещения: {pre.power}')
