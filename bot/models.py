@@ -21,6 +21,7 @@ class Presentations(models.Model):
     type_building = models.CharField(verbose_name = "Тип помещения", max_length=100, default = "0")
     adress = models.CharField(max_length=100, default="0")
     square = models.CharField(max_length=20, default="0")
+    floor = models.CharField(max_length=20, default="Нет")
     power = models.CharField(max_length=20, default="0")
     water_supply = models.CharField(max_length=30, default="0")
     height = models.CharField(max_length=20, default="0")

@@ -21,6 +21,7 @@ from Realtor.settings import OWNER_ID
 from bot.keyboard import START_BUTTONS, WATER_SUPPLY, AGGREMENT_BUTTON, FLOOR_BUTTONS, TYPE_AREA, TYPE_RENT, SKIP_BUTTON, EXIT_REPLY
 
 def start_message(message):
+    bot.clear_step_handler_by_chat_id(message.chat.id)
     user = User.objects.update_or_create(
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
@@ -252,12 +253,24 @@ def ask_question(call):
             text="Высота потолков помещения, метры (указывать только цифру)", chat_id=id_, reply_markup=EXIT_REPLY
         )
         bot.register_next_step_handler(msg, register_height)
+    def register_floor(message):
+        check_exit(message)
+        pres.floor = message.text
+        pres.save()
+        return get_height(message.chat.id)
+
+    def get_floor(id_):
+        msg = bot.send_message(
+            text="Выберите на каком этаже ваше помещение", chat_id=id_, reply_markup=WATER_SUPPLY
+        )
+        bot.register_next_step_handler(msg, register_floor)
+
 
     def register_water_supply(message):
         check_exit(message)
         pres.water_supply = message.text
         pres.save()
-        return get_height(message.chat.id)
+        return get_floor(message.chat.id)
 
     def get_water_supply(id_):
         msg = bot.send_message(
