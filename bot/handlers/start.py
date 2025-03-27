@@ -70,7 +70,7 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_number)
 
     def register_contact(message):
-        pres.contact += f"{message.text}\n"
+        pres.contact = f"{message.text}\n"
         pres.save()
         return get_number(message.chat.id)
     def get_contact(id_):

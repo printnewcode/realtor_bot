@@ -11,7 +11,7 @@ START_BUTTONS = InlineKeyboardMarkup()
 start_button = InlineKeyboardButton(text="Предложить площадь в аренду", callback_data="start_presentation")
 START_BUTTONS.add(start_button)
 
-TYPE_AREA = ReplyKeyboardMarkup()
+TYPE_AREA = ReplyKeyboardMarkup(one_time_keyboard=True)
 integrated = KeyboardButton(text="Встроенное")
 building = KeyboardButton(text="Здание")
 storage = KeyboardButton(text="Склад")
