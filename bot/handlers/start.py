@@ -46,15 +46,17 @@ def ask_question(call):
     pres = Presentations.objects.create(user=User.objects.get(user_id=call.message.chat.id))
     pres.save()
 
-    def check_exit(message):
+    def check_exit(message) -> bool:
         if message.text == "Прекратить создание предложения":
             pres.delete()
             bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-            return start_message(message)
-        
+            return True
+        return False
 
     def create_pres(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         create_presentation(object=pres)
         bot.send_message(
             text="Информация передана агенту\n\nНаши контакты для связи: +7 933 481 00 01",
@@ -69,7 +71,9 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, create_pres)
     def register_number(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.contact += message.text
         pres.save()
         return agreement(message.chat.id)
@@ -80,7 +84,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_number)
 
     def register_contact(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.contact = f"{message.text}\n"
         pres.save()
         return get_number(message.chat.id)
@@ -90,7 +96,9 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, register_contact)
     def register_additives(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         if message.text == "Пометки отсутствуют":
             return get_contact(message.chat.id)
     
@@ -108,7 +116,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_additives)
 
     def register_photo_inside(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -145,7 +155,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_photo_inside)
 
     def register_photo_outside(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -182,7 +194,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_photo_outside)
 
     def register_plan(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         try:
             if message.photo:
                 # Получаем информацию о фото (берем последнее, т.к. оно самого высокого качества)
@@ -219,7 +233,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_plan)
 
     def register_type_rent(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.type_rent = message.text
         pres.save()
         return get_plan(message.chat.id)
@@ -231,7 +247,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_type_rent)
 
     def register_rate(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.rate = message.text
         pres.save()
         return get_type_rent(message.chat.id)
@@ -243,7 +261,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_rate)
 
     def register_height(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.height = message.text
         pres.save()
         return get_rate(message.chat.id)
@@ -254,7 +274,9 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, register_height)
     def register_floor(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.floor = message.text
         pres.save()
         return get_height(message.chat.id)
@@ -267,7 +289,9 @@ def ask_question(call):
 
 
     def register_water_supply(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.water_supply = message.text
         pres.save()
         return get_floor(message.chat.id)
@@ -279,7 +303,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_water_supply)
 
     def register_power(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.power = message.text
         pres.save()
         return get_water_supply(message.chat.id)
@@ -291,7 +317,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_power)
 
     def register_square(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.square = message.text
         pres.save()
         return get_power(message.chat.id)
@@ -303,7 +331,9 @@ def ask_question(call):
         bot.register_next_step_handler(msg, register_square)
 
     def register_adress(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
         pres.adress = message.text
         pres.save()
         return get_square(message.chat.id)
@@ -314,7 +344,9 @@ def ask_question(call):
         )
         bot.register_next_step_handler(msg, register_adress)
     def register_type_building(message):
-        check_exit(message)
+        if check_exit(message):
+            pres.delete()
+            return
 
         pres.type_building = message.text
         pres.save()
