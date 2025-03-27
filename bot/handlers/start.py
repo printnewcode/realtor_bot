@@ -48,7 +48,7 @@ def ask_question(call):
             text="✉ Информация передана агенту\n\n📞 Наши контакты для связи: +7 933 481 00 01",
             chat_id=message.chat.id,
         )
-        admin_notification(pres, message.chat.id)
+        admin_notification(pres)
         return
 
     def agreement(id_):
