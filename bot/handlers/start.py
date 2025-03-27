@@ -22,7 +22,7 @@ def start_message(message):
 
 
 def exit_handler(call):
-    pres = Presentations.objects.filter(user=User.objects.get(user_id=call.message.from_user.id)).first()
+    pres = Presentations.objects.filter(user=User.objects.get(user_id=str(call.message.chat.id))).last()
     pres.delete()
     bot.clear_step_handler_by_chat_id(chat_id=call.message.chat.id)
     start_message(message=call.message)
