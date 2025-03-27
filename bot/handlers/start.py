@@ -139,8 +139,7 @@ def ask_question(call):
 
     def get_photo_inside(id_):
         msg = bot.send_message(
-            text="Отправьте фото внутри помещения (отправьте как фото, не как файл)", chat_id=id_,
-            reply_markup=EXIT_BUTTON
+            text="Отправьте фото внутри помещения (отправьте как фото, не как файл)", chat_id=id_
         )
         bot.register_next_step_handler(msg, register_photo_inside)
 
