@@ -26,7 +26,7 @@ def start_message(message):
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении",
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n\nПри помощи этого бота вы сможете удобно предоставить нашему агентству данные о своем помещении в аренду\n\nСледуйте инстркциям!",
                      reply_markup=START_BUTTONS,
                      )
 
@@ -58,16 +58,11 @@ def ask_question(call):
             return
         create_presentation(object=pres)
         bot.send_message(
-            text="Информация передана агенту\n\nНаши контакты для связи: +7 933 481 00 01",
+            text="✅ Презентация вашего объекта хранится у агента и уже рассылается в нужные компании\n\nдля подробной информации свяжитесь с вашим агентом по тел.: +7 (993) 481-00-01",
             chat_id=message.chat.id,
         )
         return
-    def agreement(id_):
-        msg = bot.send_message(
-            text="Для продолжения нужно подтвердить свое согласие на обработку данных, нажав на кнопку ниже",
-            chat_id=id_,
-            reply_markup=AGGREMENT_BUTTON,
-        )
+    
         bot.register_next_step_handler(msg, create_pres)
     def register_number(message):
         if check_exit(message):
@@ -79,7 +74,7 @@ def ask_question(call):
         msg = bot.send_message(
             text="Телефон для связи", chat_id=id_, 
         )
-        bot.register_next_step_handler(msg, register_number)
+        bot.register_next_step_handler(msg, create_pres)
 
     def register_contact(message):
         if check_exit(message):
@@ -428,9 +423,9 @@ def show_all_presentations(call):
             except Exception as e:
                 print(f"Ошибка при удалении файла: {e}")
 
-@bot.message_handler(commands=['presentations'])
+"""@bot.message_handler(commands=['presentations'])
 def handle_presentations(message):
-    """Обработчик команды /presentations"""
+    
     try:
         user = User.objects.filter(user_id=message.chat.id).first()
     except:
@@ -521,5 +516,5 @@ def handle_presentations(message):
                     
     except Exception as e:
         print(f"Общая ошибка: {e}")
-        bot.reply_to(message, f"Произошла ошибка при создании презентаций: {str(e)}")
+        bot.reply_to(message, f"Произошла ошибка при создании презентаций: {str(e)}")"""
 
