@@ -20,7 +20,7 @@ def admin_permission(func):
         user_id = message.from_user.id
         user = User.objects.get(user_id=user_id)
         if not user.is_admin:
-            bot.send_message(user_id, '⛔ У вас нет администраторского доступа')
+            bot.send_message(user_id, "✅ Презентация вашего объекта хранится у агента и уже рассылается в нужные компании\n\nдля подробной информации свяжитесь с вашим агентом по тел.: +7 (993) 481-00-01")
             return
         return func(message)
 
