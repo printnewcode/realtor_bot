@@ -17,7 +17,7 @@ def start_message(message):
         user_id=message.from_user.id,
         defaults={"user_id": message.from_user.id, "username": message.from_user.username}
     )
-    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n\nПри помощи этого бота вы сможете удобно предоставить нашему агентству данные о своем помещении в аренду\n\nСледуйте инстркциям!",
+    bot.send_message(message.chat.id, "Здравствуйте! Я помогу собрать информацию о помещении.\n\nПри помощи этого бота вы сможете удобно предоставить нашему агентству данные о своем помещении в аренду\n\nСледуйте инструкциям!",
                      reply_markup=START_BUTTONS,
                      )
 
