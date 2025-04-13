@@ -35,7 +35,7 @@ def admin_panel(message):
     reply = InlineKeyboardMarkup()
     try:
         for pres in presentations:
-            reply.add(InlineKeyboardButton(text=f"Презентация\n{pres.contact}", callback_data=f"pres_{pres.pk}"))
+            reply.add(InlineKeyboardButton(text=f"{pres.contact}", callback_data=f"pres_{pres.pk}"))
         try:
             bot.send_message(text="Вот все презентации!", chat_id=message.chat.id, reply_markup=reply)
         except:
